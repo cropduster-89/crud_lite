@@ -46,7 +46,7 @@ static bool display_Init(HWND window,
 		printf("Error: %x\n", (int32_t)GetLastError());
 		return(false);
 	}
-	SendMessage(gs->search.searchList, WM_SETFONT, (WPARAM)gs->stdFont, FALSE);
+	SendMessage(gs->display.deleteButton, WM_SETFONT, (WPARAM)gs->stdFont, FALSE);
 	
 	gs->display.editButton = CreateWindowEx(0, WC_BUTTON, "Edit", WS_CHILD|WS_VISIBLE, 
 		displayRect.right - (DEF_OFFSET + DEF_BTN_X) * 2, 
@@ -56,7 +56,7 @@ static bool display_Init(HWND window,
 		printf("Error: %x\n", (int32_t)GetLastError());
 		return(false);
 	}
-	SendMessage(gs->search.searchList, WM_SETFONT, (WPARAM)gs->stdFont, FALSE);
+	SendMessage(gs->display.editButton, WM_SETFONT, (WPARAM)gs->stdFont, FALSE);
 	
 	return(true);
 }

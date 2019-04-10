@@ -1,9 +1,9 @@
 #include "resource.h"
 
-1 		24 	"cl_manifest.manifest"
+1 	24 		"cl_manifest.manifest"
 
-TBTN_SEARCH BITMAP "resources/search_button.bmp"
-TBTN_NEW BITMAP "resources/new_button.bmp"
+TBTN_SEARCH BITMAP 	"resources/search_button.bmp"
+TBTN_NEW BITMAP 	"resources/new_button.bmp"
 
 STRINGTABLE
 BEGIN

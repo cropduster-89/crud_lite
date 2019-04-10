@@ -105,8 +105,9 @@ static bool search_Init(HWND window,
 	POINT row1 = win32_IncrementPoint(row0Base, 0, DEF_TEXTY + DEF_OFFSET);
 	gs->search.searchList = CreateWindowEx(0 , WC_LISTVIEW, "Search", 
 		WS_CHILD|WS_VISIBLE|WS_BORDER|LVS_REPORT, 
-		row1.x, row1.y, searchRect.right - DEF_OFFSET * 2,
-		searchRect.bottom + DEF_OFFSET * 2, 
+		row1.x, row1.y, 
+		searchRect.right - row1.x - DEF_OFFSET,
+		searchRect.bottom - row1.y - DEF_OFFSET , 
 		window, (HMENU)WINDOW_SEARCH_RESULTS, gs->hInstance, NULL);
 	if(!gs->search.searchList) {
 		printf("Error: %x\n", (int32_t)GetLastError());
@@ -130,7 +131,7 @@ static bool search_Init(HWND window,
 		lvc.iSubItem = i;
 		lvc.pszText = listBuffer;
 		lvc.fmt = LVCFMT_LEFT;
-		lvc.cx = (!i) ? 100 : searchRect.right - 100; // Will stop working if more cols are added
+		lvc.cx = (!i) ? 100 : searchRect.right - 110; // Will stop working if more cols are added
 
 		LoadString(gs->hInstance, SCOL_ID + i, listBuffer, ARRAY_COUNT(listBuffer));
 		ListView_InsertColumn(gs->search.searchList, i, &lvc);	
