@@ -1,0 +1,13 @@
+#include "resource.h"
+
+1 		24 	"cl_manifest.manifest"
+
+TBTN_SEARCH BITMAP "resources/search_button.bmp"
+TBTN_NEW BITMAP "resources/new_button.bmp"
+
+STRINGTABLE
+BEGIN
+	SCOL_ID		"ID"	
+	SCOL_NAME 	"Name"	
+	
+END	
