@@ -32,3 +32,6 @@ From here the record can be edited, or deleted.
 ![Imgur](https://i.imgur.com/KN9wx3k.png)
 
 The user will be notified if any important information is omitted.
+
+![Imgur](https://i.imgur.com/mb6l96d.png)
+
