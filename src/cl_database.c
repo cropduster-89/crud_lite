@@ -1,3 +1,7 @@
+/*
+*	Counts the number of results given by
+*	a SELECT command.
+*/
 static int database_CallbackCount(void *data,
 				  int argc,
 			          char **argv,
@@ -9,6 +13,9 @@ static int database_CallbackCount(void *data,
 	return(0);
 }
 
+/*
+*	Retrieves the data from a list of records.
+*/
 static int database_CallbackMultipleReturn(void *data,
 					   int argc,
 			                   char **argv,
@@ -36,6 +43,9 @@ static int database_CallbackMultipleReturn(void *data,
 	return(0);
 }
 
+/*
+*	Retrieves the data from a single record.
+*/
 static int database_CallbackSingleReturn(void *data,
 					 int argc,
 			                 char **argv,
@@ -58,6 +68,9 @@ static int database_CallbackSingleReturn(void *data,
 	return(0);
 }
 
+/*
+*	Deletes a record based on it's id.
+*/
 extern bool database_Delete(int32_t id)
 {
 	bool result = false;
@@ -82,6 +95,9 @@ extern bool database_Delete(int32_t id)
 	return(result);	
 }
 
+/*
+*	Updates an exsisting record. Currently updates every single field.
+*/
 extern bool database_Update(struct customer_record *record)
 {
 	
@@ -112,6 +128,9 @@ extern bool database_Update(struct customer_record *record)
 	return(result);		
 }
 
+/*
+*	Get a record from it's ID.
+*/
 extern bool database_GetById(int64_t id,
 			     struct customer_record *record)
 {
@@ -136,6 +155,13 @@ extern bool database_GetById(int64_t id,
 	return(result);		
 }
 
+/*
+*	Searches for a record by name.
+*
+*	TODO: sqlite3_exec is currently called twice, so that the result 
+*	list can be created with a single malloc, as opposed to a linked list. 
+*	There should be a better way to do this.
+*/
 extern bool database_SearchByName(char *term,
 				  int32_t len,
 				  struct customer_search_results *results) 
@@ -160,7 +186,7 @@ extern bool database_SearchByName(char *term,
 	   &err) != SQLITE_OK ) {			
 		printf("Sqlite3 error: %s", err);
 	}	
-	printf("%d hits\n", results->hits);
+	
 	results->records = calloc(1, sizeof(struct customer_record) * results->hits);
 	if(sqlite3_exec(dbHandle, sqlString, database_CallbackMultipleReturn, results, 
 	   &err) != SQLITE_OK ) {			
@@ -171,6 +197,9 @@ extern bool database_SearchByName(char *term,
 	return(result);
 }
 
+/*
+*	Creates a new record from the data provided.
+*/
 extern bool database_Commit(struct customer_record *record)
 {
 	bool result = false;
@@ -199,6 +228,10 @@ extern bool database_Commit(struct customer_record *record)
 	return(result);
 }
 
+/*
+*	Create database if none exsists, and create tables.
+*	Citical error if this fails.
+*/
 extern bool database_InitDatabase(void)
 {
 	sqlite3 *dbHandle = 0;	
@@ -224,7 +257,7 @@ extern bool database_InitDatabase(void)
 		tableExists = false;
 		printf("Sqlite3 error: %s", err);
 	}
-	if(dbHandle) {sqlite3_close(dbHandle);}
 	
+	sqlite3_close(dbHandle);	
 	return(dbHandle && tableExists);	
 }

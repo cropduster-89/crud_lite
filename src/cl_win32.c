@@ -30,6 +30,12 @@ void search_Open(struct gui_state *gs);
 #include "cl_edit.c"
 #include "cl_search.c"
 
+/*
+*	Gets the struct gui_state * contained within the main 
+*	window class. GetParent returns NULL when it's argument
+*	is not a child window, at which point we know it's the main
+*	window and can pull the state from it. 
+*/
 extern struct gui_state *win32_GetState(HWND window)
 {
 	HWND parent = window, temp = window;	
@@ -46,6 +52,13 @@ extern struct gui_state *win32_GetState(HWND window)
 	return(gs);
 }
 
+/*
+*	Frees the list of records pulled from a search.
+*	Must ONLY be called when the search list is empty, 
+*	as the string ptrs it uses are contained within.
+*	Attempting to display search results without this data
+*	WILL cause a segfault. 
+*/
 extern void win32_ClearRecords(struct customer_search_results *results)
 {
 	if(results->records) {
@@ -80,6 +93,9 @@ extern inline RECT win32_MakeRect(POINT base,
 	return(result);
 }
 
+/*
+*	Adds xy values to an exsisting point.
+*/
 extern inline POINT win32_IncrementPoint(POINT base,
 					 int32_t x,
 					 int32_t y)
@@ -90,6 +106,10 @@ extern inline POINT win32_IncrementPoint(POINT base,
 	return(base);
 }
 
+/*
+*	Initialises the fonts, the toolbar, the program state, and 
+*	all subequent windows (inside their own sublassed procs)
+*/
 static bool win32_Init(HWND window,
 		       struct gui_state *gs)
 {
@@ -161,6 +181,9 @@ static bool win32_Init(HWND window,
 		clientRect.bottom -= DEF_OFFSET + DEF_HEADERY,
 	};			
 	
+	//	Initialisation completed in the panels
+	//	stated window Procs after their windows are created.	
+	
 	WNDCLASSEX wcEdit = wcPanel;
 	wcEdit.lpfnWndProc = edit_Proc;
 	wcEdit.lpszClassName = "WINCLASS_EDIT";
@@ -173,10 +196,7 @@ static bool win32_Init(HWND window,
 		printf("Error: %x\n", (int32_t)GetLastError());
 		return(false);
 	}		
-	
-	//	Initialisation completed in the panels
-	//	stated window Procs	
-	
+		
 	WNDCLASSEX wcSearch = wcPanel;
 	wcSearch.lpfnWndProc = search_Proc;
 	wcSearch.lpszClassName = "WINCLASS_SEARCH";
@@ -207,6 +227,9 @@ static bool win32_Init(HWND window,
 	return(true);
 }
 
+/*
+*	Message processing for the main window.
+*/
 LRESULT CALLBACK win32_Proc(HWND window,
 			    UINT msg,
 			    WPARAM wParam,
@@ -217,7 +240,16 @@ LRESULT CALLBACK win32_Proc(HWND window,
 	switch(msg) {	
 	case WM_DESTROY: {
 		
+		//	The WM_DESTROY is called between WM_CLOSE and WM_QUIT, 
+		// 	and is where any shutdown cleaning up should be done.
+		//	There should be no need to handle the other two 
+		// 	close messages, as DefWindowProc's defaults 
+		//	will handle them just fine.	
+		
 		struct gui_state *gs = (struct gui_state *)GetClassLongPtr(window, 0);
+		DeleteObject(gs->hdrFont);
+		DeleteObject(gs->stdFont);
+		DeleteObject(gs->errFont);
 		free(gs);	
 		PostQuitMessage(0);			
 		
@@ -233,19 +265,27 @@ LRESULT CALLBACK win32_Proc(HWND window,
 		SetClassLongPtr(window, 0, (LONG_PTR)gs);		
 		gs->mainWindow = window;
 		gs->hInstance = (HINSTANCE)GetModuleHandle(NULL);
-		if(!database_InitDatabase()) {printf("db connection error\n");}				
+		if(!database_InitDatabase()) {
+			MessageBox(NULL, TEXT("No database availible," \
+			 "startup aborted.\n"), NULL, MB_ICONERROR);
+			PostQuitMessage(0);
+			return(1);	
+		}				
 		
 		if(!win32_Init(window, gs)) {
 			MessageBox(NULL, TEXT("Edit Window creation failed," \
 			 "startup aborted.\n"), NULL, MB_ICONERROR);
+			PostQuitMessage(0);
 			return(1);
-		}	
-		
-		BITSET(gs->stateFlags, FLAGS_RUNNING);
-		
+		}		
 		break;	
 		
 	} case WM_COMMAND: {
+		
+		//	WM_COMMAND is the message sent when a button or 
+		//	other control is clicked. The control is indentified 
+		//	with the wParam, which here, is our application 
+		//	defined HMENU field.
 		
 		if(LOWORD(wParam) == WINDOW_TOOLBTN_NEW) {
 			
@@ -256,10 +296,8 @@ LRESULT CALLBACK win32_Proc(HWND window,
 		} else if(LOWORD(wParam) == WINDOW_TOOLBTN_SEARCH) {
 			
 			struct gui_state *gs = win32_GetState(window);		
-			ListView_DeleteAllItems(gs->search.searchList);	
-			ShowWindow(gs->edit.mainInput, SW_HIDE);
-			ShowWindow(gs->display.mainDisplay, SW_HIDE);
-			ShowWindow(gs->search.mainSearch, SW_SHOW);
+			search_Open(gs);
+			
 		}		
 		break;
 		

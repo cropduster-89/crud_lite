@@ -25,7 +25,7 @@ static void win32_AddResultsToList(struct gui_state *gs)
 
 extern void search_Open(struct gui_state *gs)
 {
-	edit_InitInput(gs);
+	win32_ClearRecords(&gs->search.results);
 	ListView_DeleteAllItems(gs->search.searchList);		
 	ShowWindow(gs->display.mainDisplay, SW_HIDE);
 	ShowWindow(gs->edit.mainInput, SW_HIDE);

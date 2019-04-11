@@ -1,3 +1,6 @@
+/*
+*	Opens the window that displays a record.
+*/
 extern void display_Open(struct gui_state *gs)
 {
 	BITSET(gs->stateFlags, FLAGS_EDIT);
