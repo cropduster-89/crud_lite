@@ -1,10 +1,13 @@
 # Crud_Lite - A sample lightweight CRUD app, written in C11 with Win32 and Sqlite3
 
-1.0 [Intro](#1-0)
-1.1 [Functionality](#1-1)
+1.0 [Intro ](#1-0)<br/>
+1.1 [Functionality ](#1-1)<br/>
+1.2 [Building ](#1-2)<br/>
+
 
 <a name="1-0"></a>
 # 1.0 Intro
+
 A simple database program for Windows. Supports various database operations via SQLite3, and can be used with ease thanks to it's Win32 gui.     
 
 <a name="1-1"></a>
@@ -28,7 +31,8 @@ From here the record can be edited, or deleted.
 The user will be notified if any important information is omitted.
 
 
-## Building
+<a name="1-2"></a>
+## 1.2 Building
 
 Win32 supports the concept of a _resource_ (.rc) file, which allows you to add external assets like strings and bitmaps into the .exe file at compile time. While this will result in a bigger binary, it removes the need to load assets at runtime, and keep them knocking around on the heap. If your compiler of choice is supported by Visual Studio, the process is very easy and more or less automated through the gui. 
  
