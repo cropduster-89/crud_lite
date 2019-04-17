@@ -3,11 +3,11 @@
 1.0 [Intro](#1-0)
 1.1 [Functionality](#1-1)
 
-<a name="1-0"/>
+<a name="1-0"></a>
 # 1.0 Intro
 A simple database program for Windows. Supports various database operations via SQLite3, and can be used with ease thanks to it's Win32 gui.     
 
-<a name="1-1"/>
+<a name="1-1"></a>
 ## 1.1 Functionality
 ![Imgur](https://i.imgur.com/mb6l96d.png)
 
