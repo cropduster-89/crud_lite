@@ -308,7 +308,7 @@ LRESULT edit_Proc(HWND window,
 			
 			if(!edit_CheckPreCommit(gs)) {break;}
 			if(!edit_Commit(gs)) {break;}		
-			edit_SetRecord(gs);
+			edit_SetRecord(gs)
 			display_Open(gs);	
 		}
 		
