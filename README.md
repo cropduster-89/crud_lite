@@ -1,8 +1,8 @@
 # Crud_Lite - A sample lightweight CRUD app, written in C11 with Win32 and Sqlite3
 
-1.0 [Intro ](#1-0)<br/>
-1.1 [Functionality ](#1-1)<br/>
-1.2 [Building ](#1-2)<br/>
+## 1.0 [Intro ](#1-0)<br/>
+### 1.1 [Functionality ](#1-1)<br/>
+### 1.2 [Building ](#1-2)<br/>
 
 
 <a name="1-0"></a>
