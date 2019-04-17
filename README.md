@@ -91,7 +91,7 @@ Beneath this is the main message loop. This will check for any messages generate
 
 At the core of a Win32 application, lies the Window Procedure. Most GUI frameworks and libraries have some sort of event driven mechanism that activates when the user presses a button or resizes a window, where the developer can write the desired response. The twist here in Win32, is that the user shares this message processing system with the OS itself. If you open task manager and click End Task for a windows program, Windows itself will send a WM_CLOSE message to the programs WindowProc, and will expect it to respond accordingly. This raises some problems. How do you, the developer, know what Windows wants to happen? Well there's a simple solution. The default case for the WindProcs witch statement contains the function, [DefWindowProc](https://docs.microsoft.com/en-us/windows/desktop/api/winuser/nf-winuser-defwindowproca), which allows to handle the message itself. Over the course of your programs runtime and huge amount of messages will be handled by `DefWindowProc`, most of which you don't need to worry about. This does mean however, you should carefully gage what messages you handle yourself, and make sure they do not conflict with the default expected behavior of a Windows program. A program that doesn't default to `DefWindowProc` will be non-functional, probably non-visible, and has only seconds before it crashes completely.            
 
-```
+```c
 LRESULT CALLBACK win32_Proc(HWND window,
 			    UINT msg,
 			    WPARAM wParam,
@@ -126,3 +126,58 @@ LRESULT CALLBACK win32_Proc(HWND window,
 	return(result);
 }
 ```
+This programs main Window only processes 3 messages.
+
+#### For Starting Up
+
+The `WM_CREATE` message is sent when a window is created, (before `CreateWindowEx` returns in fact). And here, it's use as the place to create our various controls, and child windows. While these tasks are often performed in `WM_CREATE`, it is in no way essential that they are, and you can do your startup however you want after the inital window has been created.  
+
+What we will do here, is make some new window classes, for the sub-windows, and their controls, with their own WindowProcs. 
+
+While it is possible to perfrom all processing for a single program in a single WindowProc, the code with quickly grow very unwieldy, so it makes sense to subclass them.  
+
+##### Limiting use of Global Variables
+
+As a result of us having to share this function with windows, we can't set any of the parameters ourselves. We only have the four we're given; a window handle, the code for the message, and two others, a WPARAM, and a LPARAM which contain data that changes depending on the event. This limitiation in the programs core event processing functions causes many Win32 programs to use a plethora of global variables, but that's totally avoidable.
+
+Remember the `cbClsExtra` field of the window class? Well here's it's time to shine. The main window class will availible from any of it's children, from any WindowProc, and we've given it some extra data, which it's now time to intialize.
+
+```c
+struct gui_state *gs = calloc(1, sizeof(struct gui_state));		
+SetClassLongPtr(window, 0, (ULONG_PTR)gs);		
+gs->mainWindow = window;
+gs->hInstance = (HINSTANCE)GetModuleHandle(NULL);
+```
+
+gui_state is a custom struct that contains handles to our various controls and windows so we can grab data from them where ever it's required. The [SetClassLongPtr](https://docs.microsoft.com/en-us/windows/desktop/api/winuser/nf-winuser-setclasslongptra) function sets data field in the widowclass. The second parameter is an offset, where '0' is the location of the `cbClsExtra`, which we'll set to our struct, newly allocated on the heap.  
+
+As only the main window class was allocated extra space, some extra work is needed to ensure the state can be grabbed from any subsequent child windows that need the data.
+
+```c
+extern struct gui_state *win32_GetState(HWND window)
+{
+	HWND parent = window, temp = window;	
+	
+	while(1) {
+		temp = GetParent(temp);
+		if(temp) {
+			parent = temp;
+		} else {break;}
+	}	
+	struct gui_state *gs = (struct gui_state *)GetClassLongPtr(parent, 0);
+	assert(gs);
+	
+	return(gs);
+}
+```
+This function does just that. The [GetParent](https://docs.microsoft.com/en-us/windows/desktop/api/winuser/nf-winuser-getparent) function returns a handle to the parent window of the window given as a argument. If it has no parent, the funtion returns NULL, and we can safely assume it's safe to get the state using [GetClassLongPtr](https://docs.microsoft.com/en-us/windows/desktop/api/winuser/nf-winuser-getclasslongptra).
+
+#### For Shutting Down
+
+There are 3 messages invloved in shutdown, `WM_CLOSE` which Windows sends when the user requests the window be closed, most usually with the X button. This is the request to close, and if you want to handle it, is a prime to prompt the user to save, and confirm or abort the shutdown. Windows' default behaviour here is to simply call the `WM_DESTORY` message, and the programmer should do this too after any desired prompts have been given.    
+
+`WM_DESTROY` is the message you want to handle when managing your programs shutdown, where you free any resources,  or try and bring an ongoing task to a safe and dignified end in an unexpected shutdown. It is created when the window has been destroyed. It is the only one we're going to handle currently.
+
+Finally, `WM_QUIT` is a simple message with the value 0. It isn't intended to processed by the WindowProc, so we won't. It's only real goal is to break out of the message processing loop. 
+
+#### Handling 
