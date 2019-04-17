@@ -1,8 +1,14 @@
 # Crud_Lite - A sample lightweight CRUD app, written in C11 with Win32 and Sqlite3
 
+1.0 [Intro](#1-0)
+1.1 [Functionality](#1-1)
+
+<a name="1-0"/>
+# 1.0 Intro
 A simple database program for Windows. Supports various database operations via SQLite3, and can be used with ease thanks to it's Win32 gui.     
 
-## Operation
+<a name="1-1"/>
+## 1.1 Functionality
 ![Imgur](https://i.imgur.com/mb6l96d.png)
 
 The program opens with the search window, which allows the user to search for record via either their first, or last name. Pressing search with the serch field empty will simply display all records contained within the database.
