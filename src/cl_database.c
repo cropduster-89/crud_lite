@@ -1,3 +1,4 @@
+
 /*
 *	Counts the number of results given by
 *	a SELECT command.

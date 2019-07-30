@@ -62,7 +62,8 @@ extern struct gui_state *win32_GetState(HWND window)
 extern void win32_ClearRecords(struct customer_search_results *results)
 {
 	if(results->records) {
-		free(results->records); 		
+		free(results->records); 
+		results->records = NULL;
 	}
 	results->hits = 0;
 	results->added = 0;
@@ -289,7 +290,7 @@ LRESULT CALLBACK win32_Proc(HWND window,
 		
 		if(LOWORD(wParam) == WINDOW_TOOLBTN_NEW) {
 			
-			struct gui_state *gs = win32_GetState(window);	
+			struct gui_state *gs = win32_GetState(window);				
 			BITCLEAR(gs->stateFlags, FLAGS_EDIT);
 			edit_Open(gs);	
 			
@@ -303,6 +304,7 @@ LRESULT CALLBACK win32_Proc(HWND window,
 		
 	} default: {
 		result = DefWindowProcA(window, msg, wParam, lParam);
+		break;
 	}	
 	}
 	
